@@ -23,7 +23,7 @@ public class planeMatrix : MonoBehaviour
 
     void MakeTris(int n, List<int> ints)
     {
-        for (int i = 0; i < Mathf.Pow(n - 1 , 2); i++)
+        for (int i = 0; i < Mathf.Pow(n -1, 2); i++)
         {
             ints.Add(i);
             ints.Add(i + 1);
@@ -32,9 +32,14 @@ public class planeMatrix : MonoBehaviour
             ints.Add(i + 1);
             ints.Add(i + n + 1);
             ints.Add(i + n);
+
+            if ((i + 1) % n == n - 1)
+            {
+                i++;
+            }
         }
     }
-    void Start()
+    void Update()
     {
         vectorList = new List<Vector3>();
         tris = new List<int>();

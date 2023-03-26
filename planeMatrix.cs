@@ -23,20 +23,23 @@ public class planeMatrix : MonoBehaviour
 
     void MakeTris(int n, List<int> ints)
     {
+        int k = 0;
         for (int i = 0; i < Mathf.Pow(n -1, 2); i++)
         {
-            ints.Add(i);
-            ints.Add(i + 1);
-            ints.Add(i + n);
+            ints.Add(k);
+            ints.Add(k + 1);
+            ints.Add(k + n);
             
-            ints.Add(i + 1);
-            ints.Add(i + n + 1);
-            ints.Add(i + n);
+            ints.Add(k + 1);
+            ints.Add(k + n + 1);
+            ints.Add(k + n);
 
-            if ((i + 1) % n == n - 1)
+            if ((k + 1) % n == n - 1)
             {
-                i++;
+                k++;
             }
+
+            k++;
         }
     }
     void Update()

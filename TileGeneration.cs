@@ -11,7 +11,7 @@ public class TileGeneration : MonoBehaviour
     [SerializeField] private MeshCollider meshCollider;
     [SerializeField] private float mapScale;
 
-    private void Update()
+    private void OnValidate()
     {
         GenerateTile();
     }

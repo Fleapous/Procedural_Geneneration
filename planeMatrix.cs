@@ -5,6 +5,7 @@ using UnityEngine;
 public class planeMatrix : MonoBehaviour
 {
     [SerializeField] private int size;
+    [SerializeField] private int dist;
     private Mesh mesh;
     private List<Vector3> vectorList;
     private List<int> tris;
@@ -16,7 +17,9 @@ public class planeMatrix : MonoBehaviour
         {
             for (int j = 0; j < n; j++)
             {
-                vectors.Add(new Vector3(j, 0, i));
+                float x = dist * (1/10) * j;
+                float z = dist * (1/10) * i;
+                vectors.Add(new Vector3((float)j / dist, 0, (float)i / dist));
                 uvCords.Add(new Vector2(j/(float)n, i/(float)n));
             }
         }

@@ -19,7 +19,7 @@ public class TileGeneration : MonoBehaviour
     private void GenerateTile()
     {
         // calculate tile depth and width based on the mesh vertices
-        Vector3[] meshVertices = this.meshFilter.mesh.vertices;
+        Vector3[] meshVertices = this.meshFilter.sharedMesh.vertices;
         int tileDepth = (int)Mathf.Sqrt(meshVertices.Length);
         int tileWith = tileDepth;
         

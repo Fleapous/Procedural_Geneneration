@@ -9,6 +9,9 @@ namespace Procedural_Geneneration
         [SerializeField] private float scale;
         [SerializeField] private float xMove;
         [SerializeField] private float yMove;
+        [SerializeField] private int octaves;
+        [SerializeField] private float persistance;
+        [SerializeField] private float lacunarity;
         private HeightmapGenerator _heightmapGenerator;
         private MeshFilter _meshFilter;
         private MeshRenderer _meshRenderer;
@@ -25,8 +28,7 @@ namespace Procedural_Geneneration
             float[,] map = new float[n, n];
             
             //create the HeightMap
-            map = _heightmapGenerator.MapGenerator(n, n, scale, 0, 0, 0, xMove * 1/100, yMove * 1/100);
-            
+            map = _heightmapGenerator.MapGenerator(n, n, scale, octaves, persistance, lacunarity, xMove * 1/100, yMove * 1/100);
             //make it a texture
             Texture2D mapTexture = MakeTexture(map, n, n);
             _meshRenderer.material.mainTexture = mapTexture;

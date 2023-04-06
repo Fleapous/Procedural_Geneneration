@@ -6,7 +6,7 @@ namespace Procedural_Geneneration
     public class HeightmapGenerator : MonoBehaviour
     {
         public float[,] MapGenerator(int height, int weight, float scale,
-            float octaves, float persistance, float lacunarity, float xDrift, float yDrift)
+            int octaves, float persistance, float lacunarity, float xDrift, float yDrift)
         {
             float[,] map = new float[height, weight];
             float[,] mapNormalized = new float[height, weight];
@@ -19,22 +19,34 @@ namespace Procedural_Geneneration
                 //column x
                 for (int j = 0; j < weight; j++)
                 {
-                    float X = (float)i / scale + xDrift;
-                    float Y = (float)j / scale + yDrift;
+                    float amplitude = 1;
+                    float frequency = 1;
+                    float noiseHeight = 0;
 
-                    float perlinNumber = Mathf.PerlinNoise(X, Y);
-
+                    //octaves
+                    for (int k = 0; k < octaves; k++)
+                    {
+                        float X = (float)i / scale * frequency + xDrift;
+                        float Y = (float)j / scale * frequency + yDrift;
+                    
+                        float perlinNumber = Mathf.PerlinNoise(X, Y) * 2 - 1;
+                        noiseHeight = perlinNumber * amplitude;
+                    
+                        amplitude *= persistance;
+                        frequency *= lacunarity;
+                    }
+                    
                     //for normalization
-                    if (perlinNumber > maxFloat)
+                    if (noiseHeight > maxFloat)
                     {
-                        maxFloat = perlinNumber;
-                    }else if (perlinNumber < minFloat)
+                        maxFloat = noiseHeight;
+                    }else if (noiseHeight < minFloat)
                     {
-                        minFloat = perlinNumber;
+                        minFloat = noiseHeight;
                     }
                     
                     //adding the value to map
-                    map[i, j] = perlinNumber;
+                    map[i, j] = noiseHeight;
                 }
             }
 
@@ -44,11 +56,13 @@ namespace Procedural_Geneneration
                 {
                     float originalValue = map[i, j];
                     mapNormalized[i, j] = (originalValue - minFloat) / (maxFloat - minFloat);
+                    // mapNormalized[i, j] = Mathf.InverseLerp (minFloat, maxFloat, map[i, j]);
                 }
             }
             
             //height map that normalized
             return mapNormalized; 
         }
+        
     }
 }

@@ -13,6 +13,7 @@ public class planeMatrix : MonoBehaviour
 
     void MakeVertex(int n, List<Vector3> vectors, List<Vector2> uvCords)
     {
+        // n *= dist;
         for (int i = 0; i < n; i++)
         {
             for (int j = 0; j < n; j++)
@@ -21,6 +22,11 @@ public class planeMatrix : MonoBehaviour
                 float z = dist * (1/10) * i;
                 vectors.Add(new Vector3((float)j / dist, 0, (float)i / dist));
                 uvCords.Add(new Vector2(j/(float)n, i/(float)n));
+                
+                // float x = 1/dist * j;
+                // float z = 1/dist * i;
+                // vectors.Add(new Vector3((float)j / dist, 0, (float)i / dist));
+                // uvCords.Add(new Vector2(j / (float)(n - 1), i / (float)(n - 1)));
             }
         }
     }

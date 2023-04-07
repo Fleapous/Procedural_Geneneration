@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Procedural_Geneneration
 {
@@ -12,6 +13,7 @@ namespace Procedural_Geneneration
         [SerializeField] private int octaves;
         [SerializeField] private float persistance;
         [SerializeField] private float lacunarity;
+        [SerializeField] private bool showHeight;
         private HeightmapGenerator _heightmapGenerator;
         private MeshFilter _meshFilter;
         private MeshRenderer _meshRenderer;
@@ -44,16 +46,32 @@ namespace Procedural_Geneneration
         
         private Texture2D MakeTexture(float[,] map, int height, int weight)
         {
+            Vector3[] newHeight = _meshFilter.mesh.vertices;
             Texture2D texture = new Texture2D(weight, height);
+            int k = 0;
             for (int i = 0; i < height; i++)
             {
                 for (int j = 0; j < weight; j++)
                 {
                     float value = map[i, j];
-                    Color color = new Color(value, value, value, 1f);
-                    texture.SetPixel(j, i, color);
+                    if (showHeight)
+                    {
+                        newHeight[k].y = value;
+                        k++;
+                    }else
+                    {
+                        Color color = new Color(value, value, value, 1f);
+                        texture.SetPixel(j, i, color);
+
+                        newHeight[k].y = 0;
+                        k++;
+                    }
                 }
             }
+            _meshFilter.mesh.vertices = newHeight;
+            _meshFilter.mesh.RecalculateNormals();
+            _meshFilter.mesh.RecalculateBounds();
+            
             texture.Apply();
             return texture;
         }

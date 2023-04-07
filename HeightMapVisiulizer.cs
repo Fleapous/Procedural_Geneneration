@@ -15,7 +15,14 @@ namespace Procedural_Geneneration
         private HeightmapGenerator _heightmapGenerator;
         private MeshFilter _meshFilter;
         private MeshRenderer _meshRenderer;
-        
+
+        private void Start()
+        {
+            _heightmapGenerator = GetComponent<HeightmapGenerator>();
+            _meshFilter = GetComponent<MeshFilter>();
+            _meshRenderer = GetComponent<MeshRenderer>();
+        }
+
         private void OnValidate()
         {
             _heightmapGenerator = GetComponent<HeightmapGenerator>();
@@ -28,7 +35,8 @@ namespace Procedural_Geneneration
             float[,] map = new float[n, n];
             
             //create the HeightMap
-            map = _heightmapGenerator.MapGenerator(n, n, scale, octaves, persistance, lacunarity, xMove * 1/100, yMove * 1/100);
+            map = _heightmapGenerator.MapGenerator(n, n, scale, octaves,
+                persistance, lacunarity, xMove * 1/100, yMove * 1/100);
             //make it a texture
             Texture2D mapTexture = MakeTexture(map, n, n);
             _meshRenderer.material.mainTexture = mapTexture;

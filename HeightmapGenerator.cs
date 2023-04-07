@@ -30,7 +30,7 @@ namespace Procedural_Geneneration
                         float Y = (float)j / scale * frequency + yDrift;
                     
                         float perlinNumber = Mathf.PerlinNoise(X, Y) * 2 - 1;
-                        noiseHeight = perlinNumber * amplitude;
+                        noiseHeight += perlinNumber * amplitude;
                     
                         amplitude *= persistance;
                         frequency *= lacunarity;

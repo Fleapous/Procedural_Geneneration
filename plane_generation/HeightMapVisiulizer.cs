@@ -14,9 +14,12 @@ namespace Procedural_Geneneration
         [SerializeField] private float persistance;
         [SerializeField] private float lacunarity;
         [SerializeField] private bool showHeight;
+        [SerializeField] private AnimationCurve curve;
+        [SerializeField] private float heightScalar = 1;
         private HeightmapGenerator _heightmapGenerator;
         private MeshFilter _meshFilter;
         private MeshRenderer _meshRenderer;
+        
 
         private void Start()
         {
@@ -56,7 +59,8 @@ namespace Procedural_Geneneration
                     float value = map[i, j];
                     if (showHeight)
                     {
-                        newHeight[k].y = value;
+                        newHeight[k].y = curve.Evaluate(value) * heightScalar;
+                        
                         k++;
                     }else
                     {

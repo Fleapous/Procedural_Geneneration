@@ -51,6 +51,10 @@ public class planeMatrix : MonoBehaviour
     }
     void OnValidate()
     {
+        //for now hard coded to size 240
+        dist = 1;
+        size = 240;
+        
         vectorList = new List<Vector3>();
         tris = new List<int>();
         uv = new List<Vector2>();

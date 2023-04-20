@@ -11,7 +11,8 @@ public class world_chunks : MonoBehaviour
     [SerializeField] private int chunkSize = 240;
     [SerializeField] private Transform playerPozition;
 
-    public Dictionary<Vector2, Chunk> VisitedChunks = new Dictionary<Vector2, Chunk>();
+    public Dictionary<Vector2, ChunkColor> VisitedChunks = new Dictionary<Vector2, ChunkColor>();
+    public List<ChunkColor> OldChunks = new List<ChunkColor>();
     private void Start()
     {
         chunksInViewDistance =  Mathf.RoundToInt(viewDistance / chunkSize);
@@ -37,24 +38,34 @@ public class world_chunks : MonoBehaviour
                 if (VisitedChunks.ContainsKey(viewedChink))
                 {
                     Debug.Log("been here");
+                    VisitedChunks[viewedChink].chunkUpdate(playerPos, viewDistance);
                 }
                 else
                 {
                     //adding the new chunk to the visited chunks
-                    VisitedChunks.Add(viewedChink, new Chunk(viewedChink, chunkSize, playerPozition));
+                    ChunkColor tmp = new ChunkColor(viewedChink, chunkSize, playerPozition);
+                    VisitedChunks.Add(viewedChink, tmp);
+                    OldChunks.Add(tmp);
                 }
 
             }
         }
+
+        for (int i = 0; i < OldChunks.Count; i++)
+        {
+            OldChunks[i].chunkUpdate(playerPos, viewDistance);
+        }
+        OldChunks.Clear();
+        
     }
 }
 
-public class Chunk
+public class ChunkColor
 {
     private Vector2 PVector2;
     private GameObject meshObj;
     
-    public Chunk(Vector2 cord, int size, Transform playerPos)
+    public ChunkColor(Vector2 cord, int size, Transform playerPos)
     {
         // PVector3 = playerPos.TransformPoint(new Vector3(x * size, 0, y * size));
         // PVector3.y = 0;
@@ -70,5 +81,11 @@ public class Chunk
         Renderer renderer = meshObj.GetComponent<Renderer>();
         renderer.material.color = debugColor;
     }
-    
+
+    public void chunkUpdate(Vector3 playerPos, int viewDistance)
+    {
+        Vector2 Pos2d = new Vector2(playerPos.x, playerPos.z);
+        float distance = (Pos2d - PVector2).magnitude;
+        meshObj.SetActive(!(distance > viewDistance));
+    }
 }

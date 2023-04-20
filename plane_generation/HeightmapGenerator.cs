@@ -1,13 +1,15 @@
 ﻿using System;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Procedural_Geneneration
 {
     public class HeightmapGenerator : MonoBehaviour
     {
         public float[,] MapGenerator(int height, int weight, float scale,
-            int octaves, float persistance, float lacunarity, float xDrift, float yDrift)
+            int octaves, float persistance, float lacunarity, float xDrift, float yDrift, int seed)
         {
+            Random.InitState(seed);
             float[,] map = new float[height, weight];
             float[,] mapNormalized = new float[height, weight];
 

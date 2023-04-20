@@ -7,6 +7,7 @@ namespace Procedural_Geneneration
 {
     public class HeightMapVisiulizer : MonoBehaviour
     {
+        [SerializeField] private int seed;
         [SerializeField] private float scale;
         [SerializeField] private float xMove;
         [SerializeField] private float yMove;
@@ -16,6 +17,7 @@ namespace Procedural_Geneneration
         [SerializeField] private bool showHeight;
         [SerializeField] private AnimationCurve curve;
         [SerializeField] private float heightScalar = 1;
+        
         private HeightmapGenerator _heightmapGenerator;
         private MeshFilter _meshFilter;
         private MeshRenderer _meshRenderer;
@@ -41,7 +43,7 @@ namespace Procedural_Geneneration
             
             //create the HeightMap
             map = _heightmapGenerator.MapGenerator(n, n, scale, octaves,
-                persistance, lacunarity, xMove * 1/100, yMove * 1/100);
+                persistance, lacunarity, xMove * 1/100, yMove * 1/100, seed);
             //make it a texture
             Texture2D mapTexture = MakeTexture(map, n, n);
             _meshRenderer.material.mainTexture = mapTexture;

@@ -9,7 +9,17 @@ namespace Procedural_Geneneration
         public float[,] MapGenerator(int height, int weight, float scale,
             int octaves, float persistance, float lacunarity, float xDrift, float yDrift, int seed)
         {
-            Random.InitState(seed);
+            System.Random rng = new System.Random (seed);
+
+            Vector2[] octaveOffsets = new Vector2[octaves];
+            
+            for (int i = 0; i < octaves; i++)
+            {
+                float offsetX = rng.Next(-100000, 100000) + xDrift;
+                float offsetY = rng.Next(-100000, 100000) + yDrift;
+                octaveOffsets [i] = new Vector2 (offsetX, offsetY);
+            }
+            
             float[,] map = new float[height, weight];
             float[,] mapNormalized = new float[height, weight];
 
@@ -28,8 +38,8 @@ namespace Procedural_Geneneration
                     //octaves
                     for (int k = 0; k < octaves; k++)
                     {
-                        float X = (float)i / scale * frequency + xDrift;
-                        float Y = (float)j / scale * frequency + yDrift;
+                        float X = (float)i / scale * frequency + octaveOffsets[k].x;
+                        float Y = (float)j / scale * frequency + octaveOffsets[k].y;
                     
                         float perlinNumber = Mathf.PerlinNoise(X, Y) * 2 - 1;
                         noiseHeight += perlinNumber * amplitude;

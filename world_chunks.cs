@@ -55,7 +55,7 @@ public class world_chunks : MonoBehaviour
         {
             OldChunks[i].chunkUpdate(playerPos, viewDistance);
         }
-        OldChunks.Clear();
+        // OldChunks.Clear();
         
     }
 }

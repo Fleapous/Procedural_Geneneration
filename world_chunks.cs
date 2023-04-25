@@ -89,3 +89,18 @@ public class ChunkColor
         meshObj.SetActive(!(distance > viewDistance));
     }
 }
+
+public class Chunk
+{
+    private Vector2 PVector2;
+
+    public Chunk(Vector2 cord, int size, Transform playerPos)
+    {
+        PVector2 = cord * size;
+        Vector3 position = new Vector3(PVector2.x, 0, PVector2.y);
+        Debug.Log(position);
+        
+        //creating the map 
+        
+    }
+}

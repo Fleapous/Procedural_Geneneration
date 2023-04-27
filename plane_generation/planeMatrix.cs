@@ -49,7 +49,7 @@ public class planeMatrix : MonoBehaviour
             k++;
         }
     }
-    void OnValidate()
+    void Update()
     {
         //for now hard coded to size 240
         dist = 1;

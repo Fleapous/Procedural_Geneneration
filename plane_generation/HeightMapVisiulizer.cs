@@ -9,12 +9,12 @@ namespace Procedural_Geneneration
     {
         [SerializeField] private int seed;
         [SerializeField] private float scale;
-        [SerializeField] private float xMove;
-        [SerializeField] private float yMove;
+        [SerializeField] public float xMove;
+        [SerializeField] public float yMove;
         [SerializeField] private int octaves;
         [SerializeField] private float persistance;
         [SerializeField] private float lacunarity;
-        [SerializeField] private bool showHeight;
+        [SerializeField] private bool showHeight = true;
         [SerializeField] private AnimationCurve curve;
         [SerializeField] private float heightScalar = 1;
         
@@ -30,7 +30,7 @@ namespace Procedural_Geneneration
             _meshRenderer = GetComponent<MeshRenderer>();
         }
 
-        private void OnValidate()
+        private void Update()
         {
             _heightmapGenerator = GetComponent<HeightmapGenerator>();
             _meshFilter = GetComponent<MeshFilter>();

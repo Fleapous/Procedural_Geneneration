@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,10 +7,24 @@ public class planeMatrix : MonoBehaviour
 {
     [SerializeField] private int size;
     [SerializeField] private int dist;
+    [SerializeField] private bool debugSize;
+    
     private Mesh mesh;
     private List<Vector3> vectorList;
     private List<int> tris;
     private List<Vector2> uv;
+
+    void Start()
+    {
+        if(!debugSize)
+            PlaneGenerationWrapperFunction(size);
+    }
+
+    private void OnValidate()
+    {
+        if(debugSize)
+            PlaneGenerationWrapperFunction(size);
+    }
 
     void MakeVertex(int n, List<Vector3> vectors, List<Vector2> uvCords)
     {
@@ -49,30 +64,26 @@ public class planeMatrix : MonoBehaviour
             k++;
         }
     }
-    void Update()
+    
+    private void PlaneGenerationWrapperFunction(int size_)
     {
-        //for now hard coded to size 240
-        dist = 1;
-        size = 240;
-        
         vectorList = new List<Vector3>();
         tris = new List<int>();
         uv = new List<Vector2>();
         mesh = new Mesh();
         GetComponent<MeshFilter>().mesh = mesh;
-        
-        MakeVertex(size, vectorList, uv);
-        MakeTris(size, tris);
-        
+
+        MakeVertex(size_, vectorList, uv);
+        MakeTris(size_, tris);
+
         Vector3[] vectorArr = vectorList.ToArray();
         int[] trisArr = tris.ToArray();
         Vector2[] uvArr = uv.ToArray();
-        
+
         mesh.Clear();
         mesh.vertices = vectorArr;
         mesh.triangles = trisArr;
         mesh.uv = uvArr;
         mesh.RecalculateNormals();
-
     }
 }

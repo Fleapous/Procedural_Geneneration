@@ -42,25 +42,20 @@ public class HeightmapGenerator : MonoBehaviour
                     // float X = (float)i / scale * frequency + octaveOffsets[k].x;
                     // float Y = (float)j / scale * frequency + octaveOffsets[k].y;
                     
-                    float X = (j - halfWidth + octaveOffsets[k].x) / scale * frequency;
-                    float Y = (i - halfHeight + octaveOffsets[k].y) / scale * frequency;
+                    float x = (j - halfWidth + octaveOffsets[k].x) / scale * frequency;
+                    float y = (i - halfHeight + octaveOffsets[k].y) / scale * frequency;
                 
-                    float perlinNumber = Mathf.PerlinNoise(X, Y) * 2 - 1;
+                    float perlinNumber = Mathf.PerlinNoise(x, y) * 2 - 1;
                     noiseHeight += perlinNumber * amplitude;
                 
                     amplitude *= persistance;
                     frequency *= lacunarity;
                 }
-                
                 //for normalization
                 if (noiseHeight > maxFloat)
-                {
                     maxFloat = noiseHeight;
-                }else if (noiseHeight < minFloat)
-                {
+                else if (noiseHeight < minFloat)
                     minFloat = noiseHeight;
-                }
-                
                 //adding the value to map
                 map[i, j] = noiseHeight;
             }

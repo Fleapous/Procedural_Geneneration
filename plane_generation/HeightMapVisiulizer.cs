@@ -79,24 +79,16 @@ public class HeightMapVisiulizer : MonoBehaviour
             for (int j = 0; j < weight; j++)
             {
                 float value = map[i, j];
+                float heightNormal = curve.Evaluate(value);
                 if (showHeight)
                 {
-                    float heightNormal = curve.Evaluate(value);
                     newHeight[k].y = heightNormal * heightScalar;
-
-                    if (textures.texture1Range.x <= heightNormal && heightNormal <= textures.texture1Range.y)
-                        texture.SetPixel(j, i, textures.texture1);
-                    else if(textures.texture2Range.x < heightNormal && heightNormal < textures.texture2Range.y)
-                        texture.SetPixel(j, i, textures.texture2);
-                    else if(textures.texture3Range.x <= heightNormal && heightNormal <= textures.texture3Range.y)
-                        texture.SetPixel(j, i, textures.texture3);
+                    Texturing(textures, heightNormal, texture, j, i);
                     k++;
                 }else
                 {
-                    Color color = new Color(value, value, value, 1f);
-                    texture.SetPixel(j, i, color);
-
                     newHeight[k].y = 0;
+                    Texturing(textures, heightNormal, texture, j, i);
                     k++;
                 }
             }
@@ -107,6 +99,16 @@ public class HeightMapVisiulizer : MonoBehaviour
         
         texture.Apply();
         return texture;
+    }
+
+    private static void Texturing(Textures textures, float heightNormal, Texture2D texture, int j, int i)
+    {
+        if (textures.texture1Range.x <= heightNormal && heightNormal <= textures.texture1Range.y)
+            texture.SetPixel(j, i, textures.texture1);
+        else if (textures.texture2Range.x < heightNormal && heightNormal < textures.texture2Range.y)
+            texture.SetPixel(j, i, textures.texture2);
+        else if (textures.texture3Range.x <= heightNormal && heightNormal <= textures.texture3Range.y)
+            texture.SetPixel(j, i, textures.texture3);
     }
 }
 

@@ -1,97 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &3382472696493237236
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2265693024513241553}
-  - component: {fileID: 1247335625318784186}
-  m_Layer: 0
-  m_Name: Area Light
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &2265693024513241553
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3382472696493237236}
-  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 73.80197, y: 127.4, z: 124.8}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 5975847668817395337}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
---- !u!108 &1247335625318784186
-Light:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3382472696493237236}
-  m_Enabled: 1
-  serializedVersion: 10
-  m_Type: 3
-  m_Shape: 0
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 152.44
-  m_Range: 10
-  m_SpotAngle: 30
-  m_InnerSpotAngle: 21.80208
-  m_CookieSize: 10
-  m_Shadows:
-    m_Type: 2
-    m_Resolution: -1
-    m_CustomResolution: -1
-    m_Strength: 1
-    m_Bias: 0.05
-    m_NormalBias: 0.4
-    m_NearPlane: 0.2
-    m_CullingMatrixOverride:
-      e00: 1
-      e01: 0
-      e02: 0
-      e03: 0
-      e10: 0
-      e11: 1
-      e12: 0
-      e13: 0
-      e20: 0
-      e21: 0
-      e22: 1
-      e23: 0
-      e30: 0
-      e31: 0
-      e32: 0
-      e33: 1
-    m_UseCullingMatrixOverride: 0
-  m_Cookie: {fileID: 0}
-  m_DrawHalo: 0
-  m_Flare: {fileID: 0}
-  m_RenderMode: 0
-  m_CullingMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_RenderingLayerMask: 1
-  m_Lightmapping: 2
-  m_LightShadowCasterMode: 0
-  m_AreaSize: {x: 1, y: 1}
-  m_BounceIntensity: 1
-  m_ColorTemperature: 6570
-  m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
-  m_UseBoundingSphereOverride: 0
-  m_ShadowRadius: 0
-  m_ShadowAngle: 0
 --- !u!1 &5975847668817395350
 GameObject:
   m_ObjectHideFlags: 0
@@ -124,8 +32,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 304.8, y: 0, z: -9.4}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 2265693024513241553}
+  m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -206,7 +113,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   size: 241
   dist: 1
-  debugSize: 0
+  debugSize: 1
 --- !u!114 &5975847668817395348
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -226,7 +133,7 @@ MonoBehaviour:
   octaves: 9
   persistance: 0.56
   lacunarity: 1.66
-  showHeight: 1
+  showHeight: 0
   curve:
     serializedVersion: 2
     m_Curve:
@@ -240,26 +147,26 @@ MonoBehaviour:
       inWeight: 0
       outWeight: 0
     - serializedVersion: 3
-      time: 0.17489722
-      value: 0.47044083
-      inSlope: 0.13528326
-      outSlope: 0.13528326
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.107341
-      outWeight: 0.18481253
+      time: 0.20341797
+      value: 0.54559326
+      inSlope: -0.48859036
+      outSlope: -0.025994424
+      tangentMode: 1
+      weightedMode: 1
+      inWeight: 0.9547106
+      outWeight: 0.19365473
     - serializedVersion: 3
-      time: 0.48293585
-      value: 0.49829918
-      inSlope: 0.036682032
-      outSlope: 0.036682032
+      time: 0.49658376
+      value: 0.5033651
+      inSlope: -0.058575474
+      outSlope: -0.058575474
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.5507487
+      inWeight: 0.15746185
       outWeight: 0.33333334
     - serializedVersion: 3
-      time: 0.71520996
-      value: 0.28063583
+      time: 0.6867676
+      value: 0.29076767
       inSlope: -0.058791947
       outSlope: -0.058791947
       tangentMode: 0
@@ -270,6 +177,13 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   heightScalar: 17.95
+  textures:
+    texture1: {r: 0.18155926, g: 0.2824877, b: 0.754717, a: 0}
+    texture2: {r: 0.16838734, g: 0.8301887, b: 0.28496337, a: 0}
+    texture3: {r: 0.6509434, g: 0.39593878, b: 0.16273585, a: 0}
+    texture1Range: {x: 0, y: 0.45}
+    texture2Range: {x: 0.45, y: 0.55}
+    texture3Range: {x: 0.55, y: 1}
   debugNoise: 0
 --- !u!114 &5975847668817395351
 MonoBehaviour:

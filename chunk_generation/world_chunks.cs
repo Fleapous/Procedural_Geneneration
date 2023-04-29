@@ -9,6 +9,7 @@ public class world_chunks : MonoBehaviour
 {
     [SerializeField] private int viewDistance = 200;
     [SerializeField] private int chunkSize = 240;
+    [SerializeField] private float noiseOffset;
     [SerializeField] private Transform playerPozition;
     [SerializeField] private GameObject ChunkPrefab;
     
@@ -46,7 +47,7 @@ public class world_chunks : MonoBehaviour
                 {
                     //adding the new chunk to the visited chunks
                     GameObject chunkInst = Instantiate(ChunkPrefab);
-                    Chunk tmp = new Chunk(viewedChunk, chunkSize, playerPozition, chunkInst);
+                    Chunk tmp = new Chunk(viewedChunk, chunkSize, playerPozition, chunkInst, noiseOffset);
                     // ChunkColor tmp = new ChunkColor(viewedChink, chunkSize, playerPozition);
                     VisitedChunks.Add(viewedChunk, tmp);
                     OldChunks.Add(tmp);
@@ -98,15 +99,14 @@ public class Chunk
 {
     private Vector2 PVector2;
     private GameObject chunkInst;
-    public Chunk(Vector2 cord, int size, Transform playerPos, GameObject chunkPrefab)
+    public Chunk(Vector2 cord, int size, Transform playerPos, GameObject chunkPrefab, float noiseOffset)
     {
         PVector2 = cord * size;
         Vector3 position = new Vector3(PVector2.x, 0, PVector2.y);
-        Debug.Log(position);
 
         HeightMapVisiulizer heightMapVisiulizer = chunkPrefab.GetComponent<HeightMapVisiulizer>();
-        heightMapVisiulizer.xMove = position.x * 100;
-        heightMapVisiulizer.yMove = position.z * 100;
+        heightMapVisiulizer.xMove = position.x * noiseOffset;
+        heightMapVisiulizer.yMove = position.z * noiseOffset;
         chunkPrefab.transform.position = position;
         chunkPrefab.transform.localScale = Vector3.one;
         chunkInst = chunkPrefab;

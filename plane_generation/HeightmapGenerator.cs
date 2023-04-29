@@ -52,10 +52,11 @@ public class HeightmapGenerator : MonoBehaviour
                     frequency *= lacunarity;
                 }
                 //for normalization
-                if (noiseHeight > maxFloat)
-                    maxFloat = noiseHeight;
-                else if (noiseHeight < minFloat)
-                    minFloat = noiseHeight;
+                // if (noiseHeight > maxFloat)
+                //     maxFloat = noiseHeight;
+                // else if (noiseHeight < minFloat)
+                //     minFloat = noiseHeight;
+                
                 //adding the value to map
                 map[i, j] = noiseHeight;
             }
@@ -66,10 +67,14 @@ public class HeightmapGenerator : MonoBehaviour
             for (int j = 0; j < width; j++)
             {
                 float originalValue = map[i, j];
-                mapNormalized[i, j] = (originalValue - minFloat) / (maxFloat - minFloat);
-                // mapNormalized[i, j] = Mathf.InverseLerp (minFloat, maxFloat, map[i, j]);
+                // mapNormalized[i, j] = (originalValue - minFloat) / (maxFloat - minFloat);
+                
+                //hard coded normal max and min form the general max and min each chunk takes usually 
+                mapNormalized[i, j] = Mathf.InverseLerp (-2, 1.8f, map[i, j]);
             }
         }
+        
+        // Debug.Log("maxFloat: " + maxFloat + " " + "minFloat: " + minFloat);
         
         //height map that normalized
         return mapNormalized; 

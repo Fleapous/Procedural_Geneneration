@@ -185,6 +185,7 @@ MonoBehaviour:
     texture2Range: {x: 0.45, y: 0.55}
     texture3Range: {x: 0.55, y: 1}
   debugNoise: 0
+  ShowBioms: 0
 --- !u!114 &5975847668817395351
 MonoBehaviour:
   m_ObjectHideFlags: 0

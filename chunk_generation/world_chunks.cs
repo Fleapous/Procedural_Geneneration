@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
@@ -67,6 +68,8 @@ public class world_chunks : MonoBehaviour
                         Chunk tmp = new Chunk(viewedChunk, chunkSize, playerPozition, chunkInst, noiseOffset);
                         VisitedChunks.Add(viewedChunk, tmp);
                         OldChunks.Add(tmp);
+                        tmp.PickRandomPos();
+                        tmp.GetNeighbouringChunks(viewedChunk, VisitedChunks);
                     }
                 }
                 if (BiomVisualization)
@@ -84,13 +87,7 @@ public class world_chunks : MonoBehaviour
                         OldChunksColor.Add(tmp);
                         
                         //creating a sphere on the randomly chosen position on each chunk
-                        GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                        sphere.transform.position = tmp.PickRandomPos(Seed, heightOffset);
-                        sphere.transform.localScale = Vector3.one * sphereScale;
-                        var renderer = sphere.GetComponent<Renderer>();
-                        var material = new Material(Shader.Find("Standard"));
-                        material.color = Color.red;
-                        renderer.material = material;
+                        MakeSeed(tmp);
                     }
                 }
 
@@ -111,6 +108,17 @@ public class world_chunks : MonoBehaviour
                 OldChunksColor[i].ChunkUpdate(playerPos, viewDistance, KeepChunksVisable);
             }
         }
+    }
+
+    private void MakeSeed(ChunkColor tmp)
+    {
+        GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        sphere.transform.position = tmp.PickRandomPos(Seed, heightOffset);
+        sphere.transform.localScale = Vector3.one * sphereScale;
+        var renderer = sphere.GetComponent<Renderer>();
+        var material = new Material(Shader.Find("Standard"));
+        material.color = Color.red;
+        renderer.material = material;
     }
 }
 
@@ -163,12 +171,17 @@ public class ChunkColor
 
 public class Chunk
 {
-    private Vector2 PVector2;
+    private Vector2 GlobalChunkPos;
+    private Vector2 LocalChunkPos;
     private GameObject chunkInst;
-    public Chunk(Vector2 cord, int size, Transform playerPos, GameObject chunkPrefab, float noiseOffset)
+    public Vector2 SeedPos;
+    public List<Vector2> NeighbouringChunkSeedPos;
+    public Chunk(Vector2 cord, int size, Transform playerPos, GameObject chunkPrefab,
+        float noiseOffset)
     {
-        PVector2 = cord * size;
-        Vector3 position = new Vector3(PVector2.x, 0, PVector2.y);
+        LocalChunkPos = cord;
+        GlobalChunkPos = cord * size;
+        Vector3 position = new Vector3(GlobalChunkPos.x, 0, GlobalChunkPos.y);
 
         HeightMapVisiulizer heightMapVisiulizer = chunkPrefab.GetComponent<HeightMapVisiulizer>();
         heightMapVisiulizer.xMove = position.x * noiseOffset;
@@ -181,7 +194,54 @@ public class Chunk
     public void ChunkUpdate(Vector3 playerPos, int viewDistance)
     {
         Vector2 Pos2d = new Vector2(playerPos.x, playerPos.z);
-        float distance = (Pos2d - PVector2).magnitude;
+        float distance = (Pos2d - GlobalChunkPos).magnitude;
         chunkInst.SetActive(!(distance > viewDistance));
+    }
+    
+    public void PickRandomPos()
+    {
+        //there is no mesh filter and on debug i cant see mesh vertex count :( ____________________________________________ ____________________________________________
+        var meshFilter = chunkInst.GetComponent<MeshFilter>();
+        var mesh = meshFilter.mesh;
+        // UnityEngine.Random.InitState(seed);
+        int vertexIndex = Random.Range(0, mesh.vertexCount);
+        Vector3 globalPos = meshFilter.transform.TransformPoint(mesh.vertices[vertexIndex]);
+        Vector2 globalposV2;
+        globalposV2.x = globalPos.x;
+        globalposV2.y = globalPos.z;
+        SeedPos = globalposV2;
+    }
+
+    public void GetNeighbouringChunks(Vector2 chunkPos, Dictionary<Vector2, Chunk> chunks)
+    {
+        int chunkPosY = (int)chunkPos.y;
+        int chunkPosX = (int)chunkPos.x;
+        for (int x = -1; x <= 1; x++)
+        {
+            for (int y = -1; y <= 1; y++)
+            {
+                // if (x == 0 && y == 0)
+                // {
+                //     NeighbouringChunkSeedPos.Add(SeedPos);
+                // }
+                // else
+                // {
+                //     Vector2 adjacentPosition = chunkPos + new Vector2(x, y);
+                //     if (chunks.ContainsKey(adjacentPosition))
+                //     {
+                //         //add the current seed pos too it wont be in the dictionarry
+                //         NeighbouringChunkSeedPos.Add(chunks[adjacentPosition].SeedPos);
+                //     }
+                // }
+                
+                Vector2 adjacentPosition = chunkPos + new Vector2(x, y);
+                if (chunks.ContainsKey(adjacentPosition))
+                {
+                    //add the current seed pos too it wont be in the dictionarry
+                    NeighbouringChunkSeedPos.Add(chunks[adjacentPosition].SeedPos);
+                }
+            }
+        }
+        chunkInst.GetComponent<HeightMapVisiulizer>().neighbouringChunkSeedPos = NeighbouringChunkSeedPos;
     }
 }

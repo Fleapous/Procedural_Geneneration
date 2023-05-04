@@ -191,6 +191,10 @@ PrefabInstance:
       propertyPath: scale
       value: 157.1
       objectReference: {fileID: 0}
+    - target: {fileID: 5975847668817395348, guid: 17bb5ed15f56d42aeb78a4a37bef2849, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5975847668817395349, guid: 17bb5ed15f56d42aeb78a4a37bef2849, type: 3}
       propertyPath: debugSize
       value: 0
@@ -199,9 +203,13 @@ PrefabInstance:
       propertyPath: size
       value: 241
       objectReference: {fileID: 0}
+    - target: {fileID: 5975847668817395349, guid: 17bb5ed15f56d42aeb78a4a37bef2849, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5975847668817395350, guid: 17bb5ed15f56d42aeb78a4a37bef2849, type: 3}
       propertyPath: m_Name
-      value: Chunk (2)
+      value: Chunk2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 17bb5ed15f56d42aeb78a4a37bef2849, type: 3}

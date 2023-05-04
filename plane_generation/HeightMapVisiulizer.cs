@@ -31,7 +31,7 @@ public class HeightMapVisiulizer : MonoBehaviour
             public Vector2 texture2Range;
             public Vector2 texture3Range;
         }
-
+        
     public List<Vector2> neighbouringChunkSeedPos;
     private HeightmapGenerator _heightmapGenerator;
     private MeshFilter _meshFilter;
@@ -39,17 +39,16 @@ public class HeightMapVisiulizer : MonoBehaviour
 
     private void Start()
     {
-        if(!debugNoise)
-            HeightVizWrapperFunction();
+        // if(!debugNoise)
+        //     HeightVizWrapperFunction();
     }
     private void OnValidate()
     {
         if (debugNoise)
             HeightVizWrapperFunction();
     }
-    private void HeightVizWrapperFunction()
+    public void HeightVizWrapperFunction()
     {
-        
         _heightmapGenerator = GetComponent<HeightmapGenerator>();
         _meshFilter = GetComponent<MeshFilter>();
         _meshRenderer = GetComponent<MeshRenderer>();

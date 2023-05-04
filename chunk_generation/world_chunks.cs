@@ -44,6 +44,7 @@ public class world_chunks : MonoBehaviour
 
     void UpdateChunks()
     {
+        Debug.Log("chunks");
         Vector3 playerPos = playerPozition.position;
         int currentChunkX = Mathf.RoundToInt(playerPos.x / chunkSize);
         int currentChunkY = Mathf.RoundToInt(playerPos.z / chunkSize);
@@ -65,11 +66,11 @@ public class world_chunks : MonoBehaviour
                     {
                         //adding the new chunk to the visited chunks
                         GameObject chunkInst = Instantiate(ChunkPrefab);
-                        Chunk tmp = new Chunk(viewedChunk, chunkSize, playerPozition, chunkInst, noiseOffset);
+                        Chunk tmp = new Chunk(viewedChunk, chunkSize, chunkInst, noiseOffset);
                         VisitedChunks.Add(viewedChunk, tmp);
                         OldChunks.Add(tmp);
-                        tmp.PickRandomPos();
-                        tmp.GetNeighbouringChunks(viewedChunk, VisitedChunks);
+                        // tmp.PickRandomPos();
+                        // tmp.GetNeighbouringChunks(viewedChunk, VisitedChunks);
                     }
                 }
                 if (BiomVisualization)
@@ -174,10 +175,9 @@ public class Chunk
     private Vector2 GlobalChunkPos;
     private Vector2 LocalChunkPos;
     private GameObject chunkInst;
-    public Vector2 SeedPos;
-    public List<Vector2> NeighbouringChunkSeedPos;
-    public Chunk(Vector2 cord, int size, Transform playerPos, GameObject chunkPrefab,
-        float noiseOffset)
+    // public Vector2 SeedPos;
+    // public List<Vector2> NeighbouringChunkSeedPos;
+    public Chunk(Vector2 cord, int size, GameObject chunkPrefab, float noiseOffset)
     {
         LocalChunkPos = cord;
         GlobalChunkPos = cord * size;
@@ -198,50 +198,35 @@ public class Chunk
         chunkInst.SetActive(!(distance > viewDistance));
     }
     
-    public void PickRandomPos()
-    {
-        //there is no mesh filter and on debug i cant see mesh vertex count :( ____________________________________________ ____________________________________________
-        var meshFilter = chunkInst.GetComponent<MeshFilter>();
-        var mesh = meshFilter.mesh;
-        // UnityEngine.Random.InitState(seed);
-        int vertexIndex = Random.Range(0, mesh.vertexCount);
-        Vector3 globalPos = meshFilter.transform.TransformPoint(mesh.vertices[vertexIndex]);
-        Vector2 globalposV2;
-        globalposV2.x = globalPos.x;
-        globalposV2.y = globalPos.z;
-        SeedPos = globalposV2;
-    }
-
-    public void GetNeighbouringChunks(Vector2 chunkPos, Dictionary<Vector2, Chunk> chunks)
-    {
-        int chunkPosY = (int)chunkPos.y;
-        int chunkPosX = (int)chunkPos.x;
-        for (int x = -1; x <= 1; x++)
-        {
-            for (int y = -1; y <= 1; y++)
-            {
-                // if (x == 0 && y == 0)
-                // {
-                //     NeighbouringChunkSeedPos.Add(SeedPos);
-                // }
-                // else
-                // {
-                //     Vector2 adjacentPosition = chunkPos + new Vector2(x, y);
-                //     if (chunks.ContainsKey(adjacentPosition))
-                //     {
-                //         //add the current seed pos too it wont be in the dictionarry
-                //         NeighbouringChunkSeedPos.Add(chunks[adjacentPosition].SeedPos);
-                //     }
-                // }
-                
-                Vector2 adjacentPosition = chunkPos + new Vector2(x, y);
-                if (chunks.ContainsKey(adjacentPosition))
-                {
-                    //add the current seed pos too it wont be in the dictionarry
-                    NeighbouringChunkSeedPos.Add(chunks[adjacentPosition].SeedPos);
-                }
-            }
-        }
-        chunkInst.GetComponent<HeightMapVisiulizer>().neighbouringChunkSeedPos = NeighbouringChunkSeedPos;
-    }
+    // public void PickRandomPos()
+    // {
+    //     //there is no mesh filter and on debug i cant see mesh vertex count :( ____________________________________________ ____________________________________________
+    //     var meshFilter = chunkInst.GetComponent<MeshFilter>();
+    //     var mesh = meshFilter.mesh;
+    //     // UnityEngine.Random.InitState(seed);
+    //     int vertexIndex = Random.Range(0, mesh.vertexCount);
+    //     Vector3 globalPos = meshFilter.transform.TransformPoint(mesh.vertices[vertexIndex]);
+    //     Vector2 globalposV2;
+    //     globalposV2.x = globalPos.x;
+    //     globalposV2.y = globalPos.z;
+    //     SeedPos = globalposV2;
+    // }
+    //
+    // public void GetNeighbouringChunks(Vector2 chunkPos, Dictionary<Vector2, Chunk> chunks)
+    // {
+    //     int chunkPosY = (int)chunkPos.y;
+    //     int chunkPosX = (int)chunkPos.x;
+    //     for (int x = -1; x <= 1; x++)
+    //     {
+    //         for (int y = -1; y <= 1; y++)
+    //         {
+    //             Vector2 adjacentPosition = chunkPos + new Vector2(x, y);
+    //             if (chunks.ContainsKey(adjacentPosition))
+    //             {
+    //                 NeighbouringChunkSeedPos.Add(chunks[adjacentPosition].SeedPos);
+    //             }
+    //         }
+    //     }
+    //     chunkInst.GetComponent<HeightMapVisiulizer>().neighbouringChunkSeedPos = NeighbouringChunkSeedPos;
+    // }
 }

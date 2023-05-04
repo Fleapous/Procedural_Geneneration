@@ -106,14 +106,14 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5975847668817395350}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 64515ca208224018a37bf909bd90a0c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   size: 241
   dist: 1
-  debugSize: 1
+  debugSize: 0
 --- !u!114 &5975847668817395348
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -121,7 +121,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5975847668817395350}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 717f332909e3d47dc91ad51a97e3724a, type: 3}
   m_Name: 
@@ -186,6 +186,7 @@ MonoBehaviour:
     texture3Range: {x: 0.55, y: 1}
   debugNoise: 0
   ShowBioms: 0
+  neighbouringChunkSeedPos: []
 --- !u!114 &5975847668817395351
 MonoBehaviour:
   m_ObjectHideFlags: 0

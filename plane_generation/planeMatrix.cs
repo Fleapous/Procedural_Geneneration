@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class planeMatrix : MonoBehaviour
@@ -28,6 +29,7 @@ public class planeMatrix : MonoBehaviour
 
     void MakeVertex(int n, List<Vector3> vectors, List<Vector2> uvCords)
     {
+        Debug.Log(debugSize);
         // n *= dist;
         for (int i = 0; i < n; i++)
         {
@@ -67,6 +69,8 @@ public class planeMatrix : MonoBehaviour
     
     private void PlaneGenerationWrapperFunction(int size_)
     {
+        Debug.Log("matrix start");
+        MeshFilter meshFilter = GetComponent<MeshFilter>();
         vectorList = new List<Vector3>();
         tris = new List<int>();
         uv = new List<Vector2>();
@@ -84,6 +88,8 @@ public class planeMatrix : MonoBehaviour
         mesh.vertices = vectorArr;
         mesh.triangles = trisArr;
         mesh.uv = uvArr;
+        meshFilter.mesh = mesh;
         mesh.RecalculateNormals();
+        GetComponent<HeightMapVisiulizer>().HeightVizWrapperFunction();
     }
 }

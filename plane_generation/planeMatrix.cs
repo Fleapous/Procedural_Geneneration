@@ -9,22 +9,27 @@ public class planeMatrix : MonoBehaviour
     [SerializeField] private int size;
     [SerializeField] private int dist;
     [SerializeField] private bool debugSize;
+    [SerializeField] private bool asyncChunkGen;
     
     private Mesh mesh;
     private List<Vector3> vectorList;
     private List<int> tris;
     private List<Vector2> uv;
+    
+    private HeightmapGenerator _heightmapGenerator;
+    private MeshFilter _meshFilter;
+    private MeshRenderer _meshRenderer;
 
     void Start()
     {
         if(!debugSize)
-            PlaneGenerationWrapperFunction(size);
+            PlaneGenerationWrapperFunctionAsync(size);
     }
 
     private void OnValidate()
     {
         if(debugSize)
-            PlaneGenerationWrapperFunction(size);
+            PlaneGenerationWrapperFunctionAsync(size);
     }
 
     void MakeVertex(int n, List<Vector3> vectors, List<Vector2> uvCords)
@@ -67,7 +72,7 @@ public class planeMatrix : MonoBehaviour
         }
     }
     
-    private void PlaneGenerationWrapperFunction(int size_)
+    private async void PlaneGenerationWrapperFunctionAsync(int size_)
     {
         Debug.Log("matrix start");
         MeshFilter meshFilter = GetComponent<MeshFilter>();
@@ -90,6 +95,10 @@ public class planeMatrix : MonoBehaviour
         mesh.uv = uvArr;
         meshFilter.mesh = mesh;
         mesh.RecalculateNormals();
-        GetComponent<HeightMapVisiulizer>().HeightVizWrapperFunction();
+        
+        if(!asyncChunkGen)
+            GetComponent<HeightMapVisiulizer>().HeightVizWrapperFunction();
+        else
+            GetComponent<HeightmapVisiulizerAsync>().HeightVizWrapperFunction();
     }
 }

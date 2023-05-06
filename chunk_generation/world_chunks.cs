@@ -183,7 +183,7 @@ public class Chunk
         GlobalChunkPos = cord * size;
         Vector3 position = new Vector3(GlobalChunkPos.x, 0, GlobalChunkPos.y);
 
-        HeightMapVisiulizer heightMapVisiulizer = chunkPrefab.GetComponent<HeightMapVisiulizer>();
+        HeightmapVisiulizerAsync heightMapVisiulizer = chunkPrefab.GetComponent<HeightmapVisiulizerAsync>();
         heightMapVisiulizer.xMove = position.x * noiseOffset;
         heightMapVisiulizer.yMove = position.z * noiseOffset;
         chunkPrefab.transform.position = position;

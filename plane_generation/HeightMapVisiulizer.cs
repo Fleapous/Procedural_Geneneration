@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -47,7 +48,7 @@ public class HeightMapVisiulizer : MonoBehaviour
         if (debugNoise)
             HeightVizWrapperFunction();
     }
-    public void HeightVizWrapperFunction()
+    public async void HeightVizWrapperFunction()
     {
         _heightmapGenerator = GetComponent<HeightmapGenerator>();
         _meshFilter = GetComponent<MeshFilter>();
@@ -59,22 +60,31 @@ public class HeightMapVisiulizer : MonoBehaviour
         float[,] map = new float[n, n];
 
         //create the HeightMap
-        map = _heightmapGenerator.MapGenerator(n, n, scale, octaves,
-            persistance, lacunarity, xMove * 1 / 100, yMove * 1 / 100, seed);
+        // map = _heightmapGenerator.MapGenerator(n, n, scale, octaves,
+        //     persistance, lacunarity, xMove * 1 / 100, yMove * 1 / 100, seed);
+        
+        Task<float[,]> task = Task.Run(() => _heightmapGenerator.MapGenerator(n, n, scale, octaves,
+            persistance, lacunarity, xMove * 1 / 100, yMove * 1 / 100, seed));
+
+        // Do other work while the MapGenerator method is running...
+
+        // Wait for the MapGenerator method to complete and get its return value
+        map = await task;
+
         //make it a texture
         Texture2D mapTexture = MakeTexture(map, n, n, texture);
         _meshRenderer.material.mainTexture = mapTexture;
     }
 
-    private Texture2D MakeTexture(float[,] map, int height, int weight, Textures textures)
+    private Texture2D MakeTexture(float[,] map, int height, int width, Textures textures)
     {
         Transform chunkPos = GetComponent<Transform>();
         Vector3[] newHeight = _meshFilter.mesh.vertices;
-        Texture2D texture = new Texture2D(weight, height);
+        Texture2D texture = new Texture2D(width, height);
         int k = 0;
         for (int i = 0; i < height; i++)
         {
-            for (int j = 0; j < weight; j++)
+            for (int j = 0; j < width; j++)
             {
                 float value = map[i, j];
                 float heightNormal = curve.Evaluate(value);

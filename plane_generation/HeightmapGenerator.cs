@@ -79,6 +79,5 @@ public class HeightmapGenerator : MonoBehaviour
         //height map that normalized
         return mapNormalized; 
     }
-    
 }
 

@@ -72,9 +72,12 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
         _meshFilter.mesh.vertices = newMeshHeight;
         _meshFilter.mesh.RecalculateNormals();
         _meshFilter.mesh.RecalculateBounds();
-        newTexture.SetPixels32(color32s);
-        newTexture.Apply();
-        _meshRenderer.material.mainTexture = newTexture;
+        if (newTexture)
+        {
+            newTexture.SetPixels32(color32s);
+            newTexture.Apply();
+            _meshRenderer.material.mainTexture = newTexture;
+        }
     }
 
     private Vector3[] MakeTexture(Vector3 chunkPosition, Vector3[] newHeight, Textures terrainTexture,

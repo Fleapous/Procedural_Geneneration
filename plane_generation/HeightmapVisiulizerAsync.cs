@@ -23,8 +23,9 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
     [SerializeField] private AnimationCurve curve;
     [SerializeField] private float heightScalar = 1;
     [SerializeField] private Textures textures;
-    [SerializeField] private bool debugNoise;
-    [SerializeField] private bool ShowBioms;
+    [SerializeField] private int biom1;
+    [SerializeField] private int biom2;
+    [SerializeField] private int biom3;
     [System.Serializable]
     public class Textures
     {
@@ -65,7 +66,7 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
         Texture2D newTexture = new Texture2D(n, n);
         Color32[] color32s = new Color32[n * n];
         float[,] map = new float[n, n];
-
+    
         Task<float[,]> task = Task.Run(() => _heightmapGenerator.MapGenerator(n, n, scale, octaves,
             persistance, lacunarity, xMove * 1 / 100, yMove * 1 / 100, seed));
         map = await task;
@@ -92,89 +93,90 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
         float[,] map, int height, int width, Color32[] colors)
     {
         int k = 0;
-        for (int i = 0; i < height; i++)
+        lock (_lock)
         {
-            for (int j = 0; j < width; j++)
+            for (int i = 0; i < height; i++)
             {
-                float vertex = map[i, j];
-                float vertexY = curve.Evaluate(vertex);
-                if (showHeight)
+                for (int j = 0; j < width; j++)
                 {
-                    newHeight[k].y = vertexY * heightScalar;
-                    // colors[k] = GetPixelColor(terrainTexture, vertexY);
-                    colors[k] = GetClosestSeed(chunkPosition, new Vector3(i, 0f, j), 240, 1).color;
-                    k++;
+                    float vertex = map[i, j];
+                    float vertexY = curve.Evaluate(vertex);
+                    if (showHeight)
+                    {
+                        newHeight[k].y = vertexY * heightScalar;
+                        // colors[k] = GetPixelColor(terrainTexture, vertexY);
+                        colors[k] = GetClosestSeed(chunkPosition, new Vector3(j, 0f, i), 240, 1, terrainTexture).color;
+                        k++;
+                    }
                 }
             }
         }
 
-        
+
         return newHeight;
     }
     
-    private Color32 GetPixelColor(Textures textures, float heightNormal)
+    private Color SeedColor(Textures textures, int heightNormal)
     {
         if (textures.texture1Range.x <= heightNormal && heightNormal <= textures.texture1Range.y)
             return textures.texture1;
-        else if (textures.texture2Range.x < heightNormal && heightNormal < textures.texture2Range.y)
+        if (textures.texture2Range.x < heightNormal && heightNormal < textures.texture2Range.y)
             return textures.texture2;
-        else if (textures.texture3Range.x <= heightNormal && heightNormal <= textures.texture3Range.y)
+        if (textures.texture3Range.x <= heightNormal && heightNormal <= textures.texture3Range.y)
             return textures.texture3;
-        else
-            return Color.white;
+        return Color.white;
     }
 
-    private Seed GetClosestSeed(Vector3 chunkPos, Vector3 vertexPosRelative, float chunkSize, int chunkInViewDist)
+    private Seed GetClosestSeed(Vector3 chunkPos, Vector3 vertexPosRelative, float chunkSize, int chunkInViewDist, Textures bioms)
     {
-        lock (_lock)
+        
+        
+        int seed = Environment.TickCount * Thread.CurrentThread.ManagedThreadId;
+        System.Random random = new System.Random(seed);
+        
+        Seed closestSeed;
+        closestSeed.color = Color.magenta;
+        closestSeed.pos = new Vector2(float.MaxValue, float.MaxValue);
+        
+        Vector3 vertexPosGlobal = chunkPos + vertexPosRelative;
+        vertexPosGlobal.y = 0f;
+        float closestDist = float.MaxValue;
+        for (int yOffset = -chunkInViewDist; yOffset <= chunkInViewDist; yOffset++)
         {
-            int seed = Environment.TickCount * Thread.CurrentThread.ManagedThreadId;
-            System.Random random = new System.Random(seed);
-            
-            Seed closestSeed;
-            closestSeed.color = Color.magenta;
-            closestSeed.pos = new Vector2(float.MaxValue, float.MaxValue);
-            
-            Vector3 vertexPosGlobal = chunkPos + vertexPosRelative;
-            vertexPosGlobal.y = 0f;
-            float closestDist = float.MaxValue;
-            // int relativeChunkPosX = Mathf.RoundToInt(chunkPos.x / chunkSize);
-            // int relativeChunkPosY = Mathf.RoundToInt(chunkPos.z / chunkSize);
-            // Iterate over the search area and find the positions of the chunks
-            for (int yOffset = -chunkInViewDist; yOffset <= chunkInViewDist; yOffset++)
+            for (int xOffset = -chunkInViewDist; xOffset <= chunkInViewDist; xOffset++)
             {
-                for (int xOffset = -chunkInViewDist; xOffset <= chunkInViewDist; xOffset++)
+                Vector2 viewedChunk = new Vector2(xOffset * chunkSize + chunkPos.x, yOffset * chunkSize + chunkPos.z);
+                //check if seed exists in position
+                if (seedCollection.ContainsKey(viewedChunk))
                 {
-                    Vector2 viewedChunk = new Vector2(xOffset * chunkSize + chunkPos.x, yOffset * chunkSize + chunkPos.z);
-                    //check if seed exists in position
-                    if (seedCollection.ContainsKey(viewedChunk))
-                    {
-                        Vector3 seedPos = new Vector3(seedCollection[viewedChunk].pos.x, 0f, seedCollection[viewedChunk].pos.y);
-                        float dist = Vector3.Distance(vertexPosGlobal, seedPos);
+                    Vector3 seedPos = new Vector3(seedCollection[viewedChunk].pos.x, 0f, seedCollection[viewedChunk].pos.y);
+                    float dist = Vector3.Distance(vertexPosGlobal, seedPos);
 
-                        if (dist < closestDist)
-                        {
-                            closestDist = dist;
-                            closestSeed = seedCollection[viewedChunk];
-                        }
+                    if (dist < closestDist)
+                    {
+                        closestDist = dist;
+                        closestSeed = seedCollection[viewedChunk];
                     }
-                    else
-                    {
-                        Seed newSeed;
-                        newSeed.pos = new Vector2(random.Next(0, 241) + viewedChunk.x, random.Next(0, 241) + viewedChunk.y);
-                        newSeed.color = new Color32((byte)random.Next(256), (byte)random.Next(256), (byte)random.Next(256), 255);
-                        seedCollection.Add(viewedChunk, newSeed);
+                }
+                else
+                {
+                    Seed newSeed;
+                    newSeed.pos = new Vector2(random.Next(0, 241) + viewedChunk.x, random.Next(0, 241) + viewedChunk.y);
+                    // newSeed.color = new Color32((byte)random.Next(256), (byte)random.Next(256), (byte)random.Next(256), 255);
+                    newSeed.color = SeedColor(bioms, random.Next(0, 101));
+                    
+                    seedCollection.Add(viewedChunk, newSeed);
 
-                        float dist = Vector3.Distance(vertexPosGlobal, new Vector3(newSeed.pos.x, 0f, newSeed.pos.y));
-                        if (dist < closestDist)
-                        {
-                            closestDist = dist;
-                            closestSeed = seedCollection[viewedChunk];
-                        }
+                    float dist = Vector3.Distance(vertexPosGlobal, new Vector3(newSeed.pos.x, 0f, newSeed.pos.y));
+                    if (dist < closestDist)
+                    {
+                        closestDist = dist;
+                        closestSeed = seedCollection[viewedChunk];
                     }
                 }
             }
-            return closestSeed;
         }
+
+        return closestSeed;
     }
 }

@@ -23,9 +23,7 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
     [SerializeField] private AnimationCurve curve;
     [SerializeField] private float heightScalar = 1;
     [SerializeField] private Textures textures;
-    [SerializeField] private int biom1;
-    [SerializeField] private int biom2;
-    [SerializeField] private int biom3;
+    [SerializeField] private bool fastBiomGen;
     [System.Serializable]
     public class Textures
     {
@@ -70,11 +68,15 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
         Task<float[,]> task = Task.Run(() => _heightmapGenerator.MapGenerator(n, n, scale, octaves,
             persistance, lacunarity, xMove * 1 / 100, yMove * 1 / 100, seed));
         map = await task;
+
+        Task<Dictionary<Vector3, Seed>> taskSeed = Task.Run(() => GetNearSeeds(chunkPos, 240, texture));
+        Dictionary<Vector3, Seed> nearSeeds = new Dictionary<Vector3, Seed>();
+        nearSeeds = await taskSeed;
         
         //make it a texture
+        bool _fastBiomGen = fastBiomGen;
         Vector3[] newMeshHeight = new Vector3[n * n];
-        Task<Vector3[]> taskTexture = Task.Run((() => MakeTexture(chunkPos, vertices,
-            texture, map, n, n, color32s)));
+        Task<Vector3[]> taskTexture = Task.Run((() => MakeTexture(chunkPos, vertices, map, n, n, color32s, nearSeeds, _fastBiomGen, texture)));
         newMeshHeight = await taskTexture;
 
         _meshFilter.mesh.vertices = newMeshHeight;
@@ -89,8 +91,8 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
         
     }
 
-    private Vector3[] MakeTexture(Vector3 chunkPosition, Vector3[] newHeight, Textures terrainTexture,
-        float[,] map, int height, int width, Color32[] colors)
+    private Vector3[] MakeTexture(Vector3 chunkPosition, Vector3[] newHeight,
+        float[,] map, int height, int width, Color32[] colors, Dictionary<Vector3, Seed> nearSeeds, bool flag, Textures terrainTexture)
     {
         int k = 0;
         lock (_lock)
@@ -105,7 +107,12 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
                     {
                         newHeight[k].y = vertexY * heightScalar;
                         // colors[k] = GetPixelColor(terrainTexture, vertexY);
-                        colors[k] = GetClosestSeed(chunkPosition, new Vector3(j, 0f, i), 240, 1, terrainTexture).color;
+                        // colors[k] = GetClosestSeed(chunkPosition, new Vector3(j, 0f, i), 240, 1, terrainTexture).color;
+                        if (flag)
+                            colors[k] = FindClosestSeed(nearSeeds, chunkPosition, new Vector3(j, 0f, i));
+                        else
+                            colors[k] = GetClosestSeed(chunkPosition, new Vector3(j, 0f, i), 240, 1, terrainTexture).color;
+                        
                         k++;
                     }
                 }
@@ -127,10 +134,67 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
         return Color.white;
     }
 
+    private Dictionary<Vector3, Seed> GetNearSeeds(Vector3 chunkPos, int chunkSize, Textures bioms)
+    {
+        lock (_lock)
+        {
+            //creat the random object
+            // int seed = Environment.TickCount * Thread.CurrentThread.ManagedThreadId;
+            // System.Random random = new System.Random(seed);
+            
+            //init the dict
+            Dictionary<Vector3, Seed> closeSeedsDict = new Dictionary<Vector3, Seed>();
+
+            //main alg for finding/generating the nearby chunk seeds
+            for (int yOffset = -1; yOffset <= 1; yOffset++)
+            {
+                for (int xOffset = -1; xOffset <= 1; xOffset++)
+                {
+                    //current chunk position
+                    Vector3 viewedChunk = new Vector3(xOffset * chunkSize + chunkPos.x, 0f, yOffset * chunkSize + chunkPos.z);
+                    //check if dict has the chunk already
+                    if (seedCollection.ContainsKey(viewedChunk))
+                        closeSeedsDict.Add(viewedChunk, seedCollection[viewedChunk]);
+                    else //create the chunk and seed
+                    {
+                        int seed = Environment.TickCount * Thread.CurrentThread.ManagedThreadId;
+                        System.Random random = new System.Random(seed);
+                        Seed newSeed;
+                        newSeed.pos = new Vector2(random.Next(0, 241) + viewedChunk.x, random.Next(0, 241) + viewedChunk.y);
+                        // newSeed.pos = new Vector2(Random.Range(0, 241) + viewedChunk.x, Random.Range(0, 241) + viewedChunk.y);
+                        
+                        // newSeed.color = new Color32((byte)random.Next(256), (byte)random.Next(256), (byte)random.Next(256), 255);
+                        newSeed.color = SeedColor(bioms, random.Next(0, 101));
+                        seedCollection.Add(viewedChunk, newSeed);
+                        closeSeedsDict.Add(viewedChunk, newSeed);
+                    }
+                }
+            }
+            return closeSeedsDict;
+        }
+    }
+
+    private Color FindClosestSeed(Dictionary<Vector3, Seed> seeds, Vector3 chunkPos, Vector3 vertexPosRelative)
+    {
+        Vector3 vertexPosGlobal = chunkPos + vertexPosRelative;
+        vertexPosGlobal.y = 0f;
+        float minDist = float.MaxValue;
+        Color closestSeedCol = Color.red;
+        foreach (var seedIt in seeds)
+        {
+            Vector3 seedPos = new Vector3(seedIt.Value.pos.x, 0f, seedIt.Value.pos.y);
+            float dist = Vector3.Distance(vertexPosGlobal, seedPos);
+            if (dist < minDist)
+            {
+                minDist = dist;
+                closestSeedCol = seedIt.Value.color;
+            }
+        }
+        return closestSeedCol;
+    }
+
     private Seed GetClosestSeed(Vector3 chunkPos, Vector3 vertexPosRelative, float chunkSize, int chunkInViewDist, Textures bioms)
     {
-        
-        
         int seed = Environment.TickCount * Thread.CurrentThread.ManagedThreadId;
         System.Random random = new System.Random(seed);
         

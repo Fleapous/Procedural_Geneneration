@@ -6,7 +6,9 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
+using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
+using System.Threading;
 
 public class HeightmapVisiulizerAsync : MonoBehaviour
 {
@@ -44,7 +46,8 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
     private HeightmapGenerator _heightmapGenerator;
     private MeshFilter _meshFilter;
     private MeshRenderer _meshRenderer;
-    private static Dictionary<Vector3, Seed> seedCollection;
+    private static Dictionary<Vector3, Seed> seedCollection = new Dictionary<Vector3, Seed>();
+    private static object _lock = new object();
     
     
     public async void HeightVizWrapperFunction()
@@ -82,6 +85,7 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
             newTexture.Apply();
             _meshRenderer.material.mainTexture = newTexture;
         }
+        
     }
 
     private Vector3[] MakeTexture(Vector3 chunkPosition, Vector3[] newHeight, Textures terrainTexture,
@@ -98,7 +102,7 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
                 {
                     newHeight[k].y = vertexY * heightScalar;
                     // colors[k] = GetPixelColor(terrainTexture, vertexY);
-                    colors[k] = GetClosestSeed(chunkPosition, new Vector3(i, 0f, j), 241, 1).color;
+                    colors[k] = GetClosestSeed(chunkPosition, new Vector3(i, 0f, j), 240, 1).color;
                     k++;
                 }
             }
@@ -122,49 +126,55 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
 
     private Seed GetClosestSeed(Vector3 chunkPos, Vector3 vertexPosRelative, float chunkSize, int chunkInViewDist)
     {
-        Seed closestSeed;
-        closestSeed.color = Color.magenta;
-        closestSeed.pos = new Vector2(float.MaxValue, float.MaxValue);
-        
-        Vector3 vertexPosGlobal = chunkPos + vertexPosRelative;
-        vertexPosGlobal.y = 0f;
-        float closestDist = float.MaxValue;
-        // int relativeChunkPosX = Mathf.RoundToInt(chunkPos.x / chunkSize);
-        // int relativeChunkPosY = Mathf.RoundToInt(chunkPos.z / chunkSize);
-        // Iterate over the search area and find the positions of the chunks
-        for (int yOffset = -chunkInViewDist; yOffset <= chunkInViewDist; yOffset++)
+        lock (_lock)
         {
-            for (int xOffset = -chunkInViewDist; xOffset <= chunkInViewDist; xOffset++)
+            int seed = Environment.TickCount * Thread.CurrentThread.ManagedThreadId;
+            System.Random random = new System.Random(seed);
+            
+            Seed closestSeed;
+            closestSeed.color = Color.magenta;
+            closestSeed.pos = new Vector2(float.MaxValue, float.MaxValue);
+            
+            Vector3 vertexPosGlobal = chunkPos + vertexPosRelative;
+            vertexPosGlobal.y = 0f;
+            float closestDist = float.MaxValue;
+            // int relativeChunkPosX = Mathf.RoundToInt(chunkPos.x / chunkSize);
+            // int relativeChunkPosY = Mathf.RoundToInt(chunkPos.z / chunkSize);
+            // Iterate over the search area and find the positions of the chunks
+            for (int yOffset = -chunkInViewDist; yOffset <= chunkInViewDist; yOffset++)
             {
-                Vector2 viewedChunk = new Vector2(xOffset * chunkSize + chunkPos.x, yOffset * chunkSize + chunkPos.z);
-                //check if seed exists in position
-                if (seedCollection.ContainsKey(viewedChunk))
+                for (int xOffset = -chunkInViewDist; xOffset <= chunkInViewDist; xOffset++)
                 {
-                    Vector3 seedPos = new Vector3(seedCollection[viewedChunk].pos.x, 0f, seedCollection[viewedChunk].pos.y);
-                    float dist = Vector3.Distance(vertexPosGlobal, seedPos);
-
-                    if (dist < closestDist)
+                    Vector2 viewedChunk = new Vector2(xOffset * chunkSize + chunkPos.x, yOffset * chunkSize + chunkPos.z);
+                    //check if seed exists in position
+                    if (seedCollection.ContainsKey(viewedChunk))
                     {
-                        closestDist = dist;
-                        closestSeed = seedCollection[viewedChunk];
+                        Vector3 seedPos = new Vector3(seedCollection[viewedChunk].pos.x, 0f, seedCollection[viewedChunk].pos.y);
+                        float dist = Vector3.Distance(vertexPosGlobal, seedPos);
+
+                        if (dist < closestDist)
+                        {
+                            closestDist = dist;
+                            closestSeed = seedCollection[viewedChunk];
+                        }
                     }
-                }
-                else
-                {
-                    Seed newSeed;
-                    newSeed.pos = new Vector2(Random.Range(1, 241) + viewedChunk.x, Random.Range(1, 241) + viewedChunk.y);
-                    newSeed.color = Random.ColorHSV();
-                    seedCollection.Add(viewedChunk, newSeed);
-
-                    float dist = Vector3.Distance(vertexPosGlobal, new Vector3(newSeed.pos.x, 0f, newSeed.pos.y));
-                    if (dist < closestDist)
+                    else
                     {
-                        closestDist = dist;
-                        closestSeed = seedCollection[viewedChunk];
+                        Seed newSeed;
+                        newSeed.pos = new Vector2(random.Next(0, 241) + viewedChunk.x, random.Next(0, 241) + viewedChunk.y);
+                        newSeed.color = new Color32((byte)random.Next(256), (byte)random.Next(256), (byte)random.Next(256), 255);
+                        seedCollection.Add(viewedChunk, newSeed);
+
+                        float dist = Vector3.Distance(vertexPosGlobal, new Vector3(newSeed.pos.x, 0f, newSeed.pos.y));
+                        if (dist < closestDist)
+                        {
+                            closestDist = dist;
+                            closestSeed = seedCollection[viewedChunk];
+                        }
                     }
                 }
             }
+            return closestSeed;
         }
-        return closestSeed;
     }
 }

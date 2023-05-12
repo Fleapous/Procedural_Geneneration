@@ -111,7 +111,7 @@ public class world_chunks : MonoBehaviour
         }
     }
 
-    private void MakeSeed(ChunkColor tmp)
+    public void MakeSeed(ChunkColor tmp)
     {
         GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         sphere.transform.position = tmp.PickRandomPos(Seed, heightOffset);

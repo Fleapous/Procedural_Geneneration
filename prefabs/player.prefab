@@ -112,4 +112,10 @@ MonoBehaviour:
   chunkSize: 240
   noiseOffset: 100
   playerPozition: {fileID: 7632831560152620518}
-  ChunkPrefab: {fileID: 0}
+  ChunkPrefab: {fileID: 5670706735662495388, guid: ad78ea8b1eb2549bf9db73843fdc006a, type: 3}
+  BiomVisualization: 0
+  Seed: 0
+  sphereScale: 0
+  heightOffset: 0
+  ShowPlane: 0
+  KeepChunksVisable: 0

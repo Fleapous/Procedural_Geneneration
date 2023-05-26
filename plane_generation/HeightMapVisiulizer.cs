@@ -92,18 +92,12 @@ public class HeightMapVisiulizer : MonoBehaviour
                 if (showHeight)
                 {
                     newHeight[k].y = heightNormal * heightScalar;
-                    if(!ShowBioms)
-                        Texturing(textures, heightNormal, texture, j, i);
-                    if(ShowBioms)
-                        BiomGeneration(texture, i, j, chunkPos.position, height);
+                    texture.SetPixel(j, i, Color.Lerp(Color.black, Color.white, map[i, j]));
                     k++;
                 }else
                 {
                     newHeight[k].y = 0;
-                    if(!ShowBioms)
-                        Texturing(textures, heightNormal, texture, j, i);
-                    if(ShowBioms)
-                        BiomGeneration(texture, i, j, chunkPos.position, height);
+                    
                     k++;
                 }
             }

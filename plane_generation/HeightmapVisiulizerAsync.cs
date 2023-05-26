@@ -9,6 +9,7 @@ using UnityEngine.UI;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 using System.Threading;
+using UnityEngine.Serialization;
 
 public class HeightmapVisiulizerAsync : MonoBehaviour
 {
@@ -20,7 +21,9 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
     [SerializeField] private float persistance;
     [SerializeField] private float lacunarity;
     [SerializeField] private bool showHeight = true;
-    [SerializeField] private AnimationCurve curve;
+    [SerializeField] private bool showGray;
+    [SerializeField] private AnimationCurve curve1;
+    [SerializeField] private AnimationCurve curve2;
     [SerializeField] private float heightScalar = 1;
     [SerializeField] private Textures textures;
     [SerializeField] private bool ShowSeeds;
@@ -58,18 +61,25 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
         _meshRenderer = GetComponent<MeshRenderer>();
         Textures texture = textures;
         
-        //get the size of the mesh
+        
         Vector3 chunkPos = GetComponent<Transform>().position;
         int size = _meshFilter.sharedMesh.vertices.Length;
         Vector3[] vertices = _meshFilter.mesh.vertices;
         int n = (int)Mathf.Sqrt(size);
         Texture2D newTexture = new Texture2D(n, n);
         Color32[] color32s = new Color32[n * n];
-        float[,] map = new float[n, n];
+        float[,] mapMain = new float[n, n];
+        float[,] weightMap = new float[n, n];
     
-        Task<float[,]> task = Task.Run(() => _heightmapGenerator.MapGenerator(n, n, scale, octaves,
+        //2d noise map generation
+        Task<float[,]> taskMapMain = Task.Run(() => _heightmapGenerator.MapGenerator(n, n, scale, octaves,
             persistance, lacunarity, xMove * 1 / 100, yMove * 1 / 100, seed));
-        map = await task;
+        mapMain = await taskMapMain;
+        
+        //curve function map
+        Task<float[,]> taskWeightMap = Task.Run(() => _heightmapGenerator.MapGenerator(n, n, 900, octaves,
+            persistance, lacunarity, xMove * 1 / 100, yMove * 1 / 100, seed));
+        weightMap = await taskWeightMap;
         
         Dictionary<Vector3, Seed> nearSeeds = new Dictionary<Vector3, Seed>();
         if(ShowSeeds)
@@ -82,7 +92,7 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
         
         //make it a texture
         Vector3[] newMeshHeight = new Vector3[n * n];
-        Task<Vector3[]> taskTexture = Task.Run((() => MakeTexture(chunkPos, vertices, map, n, n, color32s, nearSeeds, texture)));
+        Task<Vector3[]> taskTexture = Task.Run((() => MakeTexture(chunkPos, vertices, mapMain, n, n, color32s, nearSeeds, texture, weightMap)));
         newMeshHeight = await taskTexture;
 
         _meshFilter.mesh.vertices = newMeshHeight;
@@ -98,7 +108,7 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
     }
 
     private Vector3[] MakeTexture(Vector3 chunkPosition, Vector3[] newHeight,
-        float[,] map, int height, int width, Color32[] colors, Dictionary<Vector3, Seed> nearSeeds, Textures terrainTexture)
+        float[,] map, int height, int width, Color32[] colors, Dictionary<Vector3, Seed> nearSeeds, Textures terrainTexture, float[,] weightMap)
     {
         int k = 0;
         lock (_lock)
@@ -108,17 +118,24 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
                 for (int j = 0; j < width; j++)
                 {
                     float vertex = map[i, j];
-                    float vertexY = curve.Evaluate(vertex);
+                    float height1 = curve1.Evaluate(vertex) * heightScalar;
+                    float height2 = curve2.Evaluate(vertex) * heightScalar;
                     if (showHeight)
                     {
-                        newHeight[k].y = vertexY * heightScalar;
-                        colors[k] = FindClosestSeed(nearSeeds, chunkPosition, new Vector3(j, 0f, i));
+                        newHeight[k].y = CalculateHeight(height1, height2, weightMap[i, j]);
+                        if (showGray)
+                            colors[k] = Color.Lerp(Color.black, Color.white, weightMap[i, j]);
+                        else
+                            colors[k] = FindClosestSeed(nearSeeds, chunkPosition, new Vector3(j, 0f, i));
                         k++;
                     }
                     else
                     {
                         newHeight[k].y = 0;
-                        colors[k] = FindClosestSeed(nearSeeds, chunkPosition, new Vector3(j, 0f, i));
+                        if (showGray)
+                            colors[k] = Color.Lerp(Color.black, Color.white, vertex);
+                        else
+                            colors[k] = FindClosestSeed(nearSeeds, chunkPosition, new Vector3(j, 0f, i));
                         k++;
                     }
                 }
@@ -139,7 +156,12 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
             return textures.texture3;
         return Color.white;
     }
-
+    //linear interpolation
+    private float CalculateHeight(float height1, float height2, float weight)
+    {
+        weight *= 2;
+        return (1 - weight) * height2 + weight * height1;
+    }
     private Dictionary<Vector3, Seed> GetNearSeeds(Vector3 chunkPos, int chunkSize, Textures bioms, float height, float radius, bool showSeeds)
     {
         lock (_lock)
@@ -182,7 +204,6 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
             return closeSeedsDict;
         }
     }
-
     private Color FindClosestSeed(Dictionary<Vector3, Seed> seeds, Vector3 chunkPos, Vector3 vertexPosRelative)
     {
         Vector3 vertexPosGlobal = chunkPos + vertexPosRelative;
@@ -201,7 +222,6 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
         }
         return closestSeedCol;
     }
-
     //old method not good :(
     private Seed GetClosestSeed(Vector3 chunkPos, Vector3 vertexPosRelative, float chunkSize, int chunkInViewDist, Textures bioms)
     {
@@ -253,7 +273,6 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
 
         return closestSeed;
     }
-
     private void generateSphere(Vector2 pos, float height, float radius)
     {
         GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
